@@ -14,6 +14,7 @@
 
 ### 2) Создание и активация виртуального окружения
 версия python 3.9!
+
 **PowerShell:**
 ```powershell
 python -m venv .venv
