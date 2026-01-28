@@ -1,6 +1,7 @@
 # --- Документы (PDF/DOCX -> Markdown) ---
 docling
 docling-parse
+pdfplumber
 
 # --- LangGraph / LangChain ---
 langgraph
@@ -14,16 +15,3 @@ langchain-ollama
 qdrant-client
 langchain-qdrant
 
-# --- llmware (упрощённый RAG) ---
-llmware
-
-# --- Vector DB: Chroma (часто используется с llmware как локальная векторная БД) ---
-chromadb
-
-# --- Embeddings через HF/SBERT (нужно для multilingual MiniLM и др.) ---
-torch
-transformers
-sentence-transformers
-
-# --- Ускорение скачивания моделей HuggingFace (опционально, чтобы убрать warning про Xet) ---
-huggingface_hub[hf_xet]
