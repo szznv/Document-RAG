@@ -11,7 +11,6 @@ from qdrant_client.http.models import Distance, VectorParams
 from langgraph.graph import StateGraph, END
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 
-# Таблицы (fallback)
 import pdfplumber  # pip install pdfplumber  [web:502]
 from langchain_core.documents import Document
 
@@ -40,12 +39,6 @@ CHUNK_OVERLAP = 150
 llm = ChatOllama(model=MODEL_NAME, temperature=0)
 embeddings = OllamaEmbeddings(model=EMBED_MODEL)
 
-# Пункты строго:
-# 1
-# 1.1 или 1.1.
-# 1.1.1 или 1.1.1.
-# 1.1.1.1 или 1.1.1.1.
-# Причём только в начале строки (с возможными пробелами/маркером).
 CLAUSE_LINE_RE = re.compile(
     r"(?m)^[^\S\r\n]*(?:[-–—•]\s*)?"
     r"(\d{1,3}(?:\.\d{1,3}){0,3})\.?"
@@ -110,9 +103,7 @@ def sanitize_text(s: str) -> str:
 
 
 def build_section_path(meta: Dict[str, Any]) -> str:
-    """
-    MarkdownHeaderTextSplitter кладёт заголовки в metadata; примерный нейминг есть в доках. [web:556]
-    """
+
     if not meta:
         return ""
 
@@ -143,16 +134,11 @@ def build_section_path(meta: Dict[str, Any]) -> str:
 
 
 def normalize_clause(raw: str) -> str:
-    """Убираем финальную точку (если вдруг попалась) и пробелы."""
     return raw.strip().rstrip(".")
 
 
 def annotate_last_clause_for_chunks(docs: List[Document]) -> None:
-    """
-    Проходим по чанкам в порядке следования и сохраняем metadata['clause_last'] =
-    последний "пункт" (по строгому regex), встреченный ДО текущего чанка.
-    Это соответствует требованию "последний считанный пункт перед найденным ответом".
-    """
+
     last_clause: Optional[str] = None
 
     for d in docs:
@@ -223,10 +209,6 @@ def extract_tables_pdfplumber(file_path: Path) -> List[Dict[str, Any]]:
 
 
 def convert_and_split(file_path: Path) -> List[Document]:
-    """
-    1) Docling -> markdown -> header groups -> чанки
-    2) Fallback по таблицам через pdfplumber -> отдельные "табличные чанки"
-    """
     docs_out: List[Document] = []
 
     converter = DocumentConverter()
@@ -471,3 +453,4 @@ if __name__ == "__main__":
         print(result["answer"])
         print("=" * 50)
         log(f"Готово. Общее время запроса: {dt:.1f} c")
+
