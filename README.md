@@ -99,6 +99,12 @@ E:\RAG\
 python LangG.py
 ```
 
+## ▶️ Запуск QUI
+```bash
+pip install streamlit
+streamlit run app.py
+```
+
 ### Кастомизация
 В файле LangG.py можно менять:
 - `chunk_size=1400` (размер текстовых блоков)
