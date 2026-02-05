@@ -15,6 +15,7 @@ from langchain_ollama import ChatOllama, OllamaEmbeddings
 
 import pdfplumber
 from langchain_core.documents import Document
+import os
 
 
 # ---------------- CONFIG ----------------
@@ -32,8 +33,8 @@ FULL_WIPE_ON_EMPTY_DOC_DIR = False
 ENABLE_TABLE_FALLBACK = True
 
 TOP_K = 5
-CHUNK_SIZE = 1400
-CHUNK_OVERLAP = 150
+CHUNK_SIZE = 2200
+CHUNK_OVERLAP = 80
 
 CLAUSE_LINE_RE = re.compile(
     r"(?m)^[^\S\r\n]*(?:[-–—•]\s*)?"
@@ -42,7 +43,7 @@ CLAUSE_LINE_RE = re.compile(
 )
 USER_AVATAR = "icon/user.png"
 ASSISTANT_AVATAR = "icon/robot.png"
-
+SIDEBAR_LOGO = "icon/logo.svg"
 
 class GraphState(TypedDict):
     question: str
@@ -92,7 +93,18 @@ div.stButton > button[kind="primary"] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* ширина раскрытого сайдбара */
+section[data-testid="stSidebar"] {
+  width: 420px !important;
+}
 
+/* чтобы контент внутри тоже подстроился */
+section[data-testid="stSidebar"] > div {
+  width: 420px !important;
+}
+section[data-testid="stSidebar"][aria-expanded="false"] .stSidebarContent {
+  display: none !important;
+}
 [data-testid="stChatInput"] textarea,
 [data-testid="stChatInput"] input {
   background: rgba(219, 234, 254, 0.85) !important;
@@ -469,7 +481,7 @@ def build_graph(retriever, llm: ChatOllama, logf: Callable[[str], None]):
 # ---------------- Streamlit app ----------------
 st.set_page_config(page_title="Поиск по документации", layout="centered")
 inject_css()
-
+st.logo(SIDEBAR_LOGO, size="large")  # можно small/medium/large
 # Session init
 if "started" not in st.session_state:
     st.session_state.started = False
@@ -482,17 +494,26 @@ st.markdown("<div class='app-title'> 🔎 Поиск по документаци
 st.markdown("<div class='app-subtitle'>Локальный поиск с цитированием</div>", unsafe_allow_html=True)
 st.divider()
 # Upload pinned under header
-with st.expander("Загрузка документов", expanded=False):
-    st.markdown("<div class='muted-block'>Добавь документы в папку <code>doc/</code></div>", unsafe_allow_html=True)
+with st.sidebar:
+    with st.expander("Загрузка документов", expanded=False):
+        st.markdown(
+            "<div class='muted-block'>Добавь документы в папку <code>doc/</code></div>",
+            unsafe_allow_html=True,
+        )
 
-    up = st.file_uploader("или загрузи здесь ↓", type=["pdf", "docx"], accept_multiple_files=False)
-    if up is not None:
-        p = save_uploaded_to_doc(up)
-        st.success(f"Сохранено: {p.name}")
+        up = st.file_uploader(
+            "или загрузи здесь ↓",
+            type=["pdf", "docx"],
+            accept_multiple_files=False,
+        )
+        if up is not None:
+            p = save_uploaded_to_doc(up)
+            st.success(f"Сохранено: {p.name}")
 
-        if st.session_state.started and st.button("Переиндексировать сейчас", use_container_width=True):
-            st.session_state._do_reindex_now = True
-            st.rerun()
+            if st.session_state.started and st.button("Переиндексировать сейчас", use_container_width=True):
+                st.session_state._do_reindex_now = True
+                st.rerun()
+
 
 # Backend init
 if "client" not in st.session_state:
