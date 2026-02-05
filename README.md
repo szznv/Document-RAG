@@ -71,9 +71,8 @@ E:\RAG\
 │   ├── document2.docx
 │   └── document3.txt
 │
-├── LangG.py                       # Реализация LangChain+Qdrant
-├── LLmWare.py                     # Реализация llmware
-│
+├── LangG.py                      
+├── app.py
 ├── requirements.txt               # Зависимости
 ├── qdrant_data/                   # Локальная Qdrant база (LangG.py)
 │   ├── ...
@@ -101,7 +100,6 @@ python LangG.py
 
 ## ▶️ Запуск QUI
 ```bash
-pip install streamlit
 streamlit run app.py
 ```
 
